@@ -1,26 +1,60 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { ITodo } from "./types/data";
+import TodoList from "./components/TodoList";
 
-function App() {
+const App: React.FC = () => {
+  const [value, setValue] = useState("");
+  const [todos, setTodos] = useState<ITodo[]>([]);
+
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setValue(e.target.value)
+  }
+  const keyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if(e.key === "Enter") {
+        addTodo()
+    }
+  }
+
+  const addTodo = () => {
+    if (value) {
+      setTodos([
+        ...todos,
+        {
+          id: Date.now(),
+          title: value,
+          complete: false,
+        },
+      ]);
+      setValue('')
+    }
+  };
+
+  const removeTodo = (id: number): void => {
+    setTodos(todos.filter(todo => todo.id !== id))
+  } 
+
+  const toggleTodo = (id: number): void => {
+    setTodos(todos.map(todo => {
+        if(todo.id !== id) {
+            return todo;
+        } else {
+             return {
+              ...todo,
+              complete: !todo.complete  
+             }
+        }
+    }))
+  } 
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <div>
+        <input value={value} onChange={handleChange} onKeyDown={keyDown} />
+        <button onClick={addTodo}>Add</button>
+      </div>
+      <TodoList items={todos} removeTodo={removeTodo} toggleTodo={toggleTodo}/>
     </div>
   );
-}
+};
 
 export default App;
